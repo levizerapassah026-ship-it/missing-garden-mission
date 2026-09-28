@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Missing Garden Mission</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--leaf:#3f8f3a;--leaf2:#2c6e2a;--ink:#2b3a2b;--card:#fffdf5;--sun:#ffd25e}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Fredoka','Trebuchet MS',sans-serif;color:var(--ink);background:#d8f1ff;font-size:20px;height:100vh;overflow:hidden}
+button{font:inherit;cursor:pointer;border:0;border-radius:16px;padding:12px 26px;background:var(--leaf);color:#fff;font-weight:600;box-shadow:0 4px 0 var(--leaf2)}
+button:hover{filter:brightness(1.08)}button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--leaf2)}
+button.alt{background:#fff;color:var(--leaf2);box-shadow:0 4px 0 #b9d8b0}
+button.sm{padding:6px 16px;font-size:16px}
+button:disabled,button.disabled{opacity:.35;pointer-events:none}
+:focus-visible{outline:4px solid #ff9f1c;outline-offset:2px}
+header{height:64px;display:flex;align-items:center;gap:18px;padding:0 24px;background:var(--card);border-bottom:4px solid #bfe3b4}
+header h1{font-size:24px;margin:0;color:var(--leaf2);white-space:nowrap}
+#turn{flex:1;font-weight:600;text-align:center}
+#bar{width:220px;height:22px;border-radius:12px;background:#e5ecd9;overflow:hidden;border:2px solid #bfe3b4}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7ccf5a,#3f8f3a);transition:width .8s}
+#pct{font-weight:600;min-width:44px}
+main{display:grid;grid-template-columns:1fr 1.3fr;height:calc(100vh - 64px)}
+/* kebun */
+#garden{position:relative;overflow:hidden;background:linear-gradient(#bfe6ff 0,#e9f7ff 45%,#8ecb6a 45%,#5f9c3f 100%);filter:saturate(var(--sat));transition:filter 1.2s}
+#garden.s0{--sat:.25;--sp:.2}#garden.s1{--sat:.5;--sp:.4}#garden.s2{--sat:.7;--sp:.6}#garden.s3{--sat:.9;--sp:.8}#garden.s4{--sat:1.15;--sp:1}
+#spirit{position:absolute;left:50%;top:38%;width:170px;height:170px;margin:-85px;border-radius:50%;background:radial-gradient(circle,#eaffc9 0,#8fe36a 40%,transparent 70%);opacity:var(--sp);animation:pulse 3s infinite;transition:opacity 1.2s}
+#garden.s0 #spirit{animation-duration:6s}#garden.s1 #spirit{animation:blink 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.15)}}@keyframes blink{50%{opacity:.15}}
+#slbl{position:absolute;left:0;right:0;top:52%;text-align:center;font-weight:600;color:#2c5a1e}
+#tree{position:absolute;left:6%;top:14%;font-size:110px}
+#plants{position:absolute;left:0;right:0;bottom:12%;display:flex;justify-content:space-around;font-size:58px}
+#animals{position:absolute;left:0;right:0;bottom:2%;text-align:center;font-size:44px;letter-spacing:8px}
+#garden.pop #plants{animation:pop .7s}@keyframes pop{40%{transform:scale(1.12)}}
+/* panel */
+#panel{display:flex;flex-direction:column;padding:16px 28px;gap:12px;min-height:0}
+#content{flex:1;overflow:auto;background:var(--card);border-radius:24px;padding:20px 28px;border:4px solid #bfe3b4}
+h2{margin:0 0 8px;font-size:28px}h2 small{font-size:18px;opacity:.6}
+.menu{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding-top:20px}
+.menu h1{font-size:46px;margin:0;color:var(--leaf2)}.menu button{min-width:260px;font-size:24px}
+.sub{opacity:.75;margin:0}.star{font-size:80px;animation:pop .8s}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.cen{text-align:center;margin:0}.big{font-size:110px;text-align:center}
+.zone{min-height:110px;border:3px dashed #9cc98f;border-radius:20px;padding:10px;margin:10px 0;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start}
+.basket{background:#fff3d6;border-color:#d9a441;flex-direction:column}.basket div{display:flex;flex-wrap:wrap}
+.fr{font-size:42px;cursor:grab;user-select:none}
+.let{font-size:38px;min-width:78px;background:#fff;color:var(--ink);border:3px solid #bfe3b4;box-shadow:0 4px 0 #bfe3b4}
+.slot{display:inline-block;width:78px;height:86px;line-height:80px;text-align:center;font-size:44px;font-weight:600;border:3px dashed #9cc98f;border-radius:16px;background:#fff;cursor:pointer}
+#fb{min-height:36px;font-weight:600;font-size:22px;text-align:center}#fb.good{color:#2c8a2c}#fb.oops{color:#c76a00}
+.veg{font-size:22px;background:#fff;color:var(--ink);border:3px solid #ddd;box-shadow:0 4px 0 #ddd;cursor:grab}.veg.sel{border-color:#ff9f1c;background:#fff4dd}.veg span{font-size:44px;display:block}
+.pot{min-width:150px;min-height:130px;border:5px solid;border-radius:6px 6px 26px 26px;background:#f3e2cf;text-align:center;padding:8px;font-weight:600;cursor:pointer}
+.pot div{font-size:34px}
+.card{display:flex;gap:14px;align-items:center;background:#f2fae9;border-radius:16px;padding:10px 16px;margin:8px 0}.card b{font-size:22px}.card span{font-size:38px}
+input[type=text]{font:inherit;padding:10px 14px;border-radius:12px;border:3px solid #bfe3b4;width:230px;margin:4px}
+.sel2{background:var(--sun);color:var(--ink);box-shadow:0 4px 0 #d9a441}
+#kbox{display:flex;gap:16px;align-items:center;min-height:140px}
+#kbox:empty{display:none}
+.av{font-size:84px;line-height:1}
+.bub{position:relative;flex:1;background:#fff;border:4px solid var(--sun);border-radius:22px;padding:14px 20px}
+.bub p{margin:0 0 8px;font-size:22px}.bb{display:flex;gap:10px}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;z-index:9}
+.box{background:var(--card);border-radius:24px;padding:24px 32px;max-width:560px}.box li{margin:6px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌱 Missing Garden Mission</h1>
+  <div id="turn"></div>
+  <div id="bar" aria-label="Progress kebun"><i id="fill"></i></div><span id="pct">0%</span>
+  <button class="alt sm" onclick="howto()">❓ Cara Bermain</button>
+  <button class="alt sm" onclick="settings()">⚙ Pengaturan</button>
+  <button class="alt sm" onclick="menu()">🏠 Menu</button>
+</header>
+<main>
+  <section id="garden" class="s0" aria-label="Kebun Ceria">
+    <div id="spirit"></div><div id="slbl">Roh Kebun</div>
+    <div id="tree">🌳</div><div id="plants"></div><div id="animals"></div>
+  </section>
+  <section id="panel"><div id="content"></div><div id="kbox"></div></section>
+</main>
+
+<script>
+/* ===== Util & state ===== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const KEY='mgm_save_v1',OKEY='mgm_opt_v1';
+function load(k,d){try{return Object.assign({},d,JSON.parse(localStorage.getItem(k))||{})}catch(e){return d}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem(OKEY,JSON.stringify(opt))}catch(e){}}
+let S=load(KEY,{players:[],done:[],progress:0});   // players, completedRoles(done), gardenProgress(progress)
+let opt=load(OKEY,{snd:true,skip:false}),M={};
+
+/* ===== Suara & feedback ===== */
+let ac;function beep(f,d=.15){if(!opt.snd)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+const yay=()=>{beep(660);setTimeout(()=>beep(880),120)},nay=()=>beep(320,.25);
+const G=['Hebat!','Benar!','Kamu berhasil!','Bagus! Lanjutkan!'],B=['Hampir! Coba lagi.','Yuk, perhatikan lagi.','Tidak apa-apa, coba sekali lagi.'];
+function fbm(t,g){const f=$('fb');if(f){f.textContent='🐰 '+t;f.className=g?'good':'oops'}}
+function ok(cb){fbm(pick(G),1);yay();setTimeout(cb,1000)}
+function bad(){fbm(pick(B),0);nay()}
+
+/* ===== Kelly (dialog) ===== */
+function say(t){$('kbox').innerHTML=`<div class=av>🐰</div><div class=bub><p>${t}</p></div>`}
+function kclear(){$('kbox').innerHTML=''}
+function talk(lines,cb,label='Lanjut'){
+  if(typeof lines==='string')lines=[lines];
+  if(opt.skip){kclear();cb&&cb();return}
+  let i=0;
+  const step=()=>{
+    const last=i===lines.length-1;
+    $('kbox').innerHTML=`<div class=av>🐰</div><div class=bub><p>${lines[i]}</p><div class=bb><button id=kb>${last?label:'Lanjut'}</button>${last?'':'<button class="alt sm" id=ks>Lewati</button>'}</div></div>`;
+    $('kb').onclick=()=>{if(last){kclear();cb&&cb()}else{i++;step()}};
+    if($('ks'))$('ks').onclick=()=>{i=lines.length-1;step()};
+    $('kb').focus();
+  };step();
+}
+
+/* ===== Kebun ===== */
+const PL=[['🥀','🍂','🥀','🍂','🥀','🍂'],['🌱','🥀','🌱','🍂','🌱','🥀'],['🌱','🌿','🌿','🌱','🌿','🌱'],['🌿','🌷','🌿','🌷','🌿','🌱'],['🌻','🌷','🌺','🌼','🌻','🌹']];
+function setGarden(anim){
+  const st=Math.min(4,Math.floor(S.progress/25)),g=$('garden');
+  g.className='s'+st;$('plants').innerHTML=PL[st].map(x=>`<span>${x}</span>`).join('');
+  $('animals').textContent=st===4?'🐝 🦋 🐿️ 🐦 🍎':'';
+  $('fill').style.width=S.progress+'%';$('pct').textContent=S.progress+'%';
+  if(anim){g.classList.add('pop');setTimeout(()=>g.classList.remove('pop'),800)}
+}
+const setTurn=t=>$('turn').textContent=t;
+
+/* ===== Role ===== */
+const ROLES=[
+ {id:'angka',n:'Penjaga Angka',ic:'🔢',task:'Hitung buah dan masukkan ke keranjang',eff:'Keranjang penuh apel berkilau!',
+  intro:'{n}, kamu Penjaga Angka! Hitung buahnya, lalu masukkan ke keranjang.',run:()=>mAngka()},
+ {id:'huruf',n:'Penjaga Huruf',ic:'🔤',task:'Pilih huruf awal nama benda',eff:'Papan nama menyala dan terbaca!',
+  intro:'{n}, kamu Penjaga Huruf! Lihat gambarnya, lalu pilih huruf awalnya.',run:()=>mHuruf()},
+ {id:'warna',n:'Penjaga Warna & Bentuk',ic:'🎨',task:'Sortir sayuran ke pot yang cocok',eff:'Tunas tumbuh dari pot yang terisi!',
+  intro:'{n}, kamu Penjaga Warna & Bentuk! Masukkan sayuran ke pot yang cocok.',run:()=>mWarna()},
+ {id:'kata',n:'Penjaga Kata',ic:'📝',task:'Susun huruf acak menjadi kata',eff:'Kata bersinar di papan!',
+  intro:'{n}, kamu Penjaga Kata! Susun huruf-huruf ini menjadi kata.',run:()=>mKata()}
+];
+const owner=i=>S.players[i%S.players.length];
+
+/* ===== Alur layar ===== */
+function menu(){
+  document.querySelectorAll('.modal').forEach(m=>m.remove());
+  setTurn('');setGarden();
+  const has=S.players.length&&S.done.length<4;
+  $('content').innerHTML=`<div class=menu><h1>Missing Garden Mission</h1><p class=sub>Ayo pulihkan Kebun Ceria bersama-sama!</p>
+   ${has?'<button onclick="cont()">Lanjutkan</button>':''}<button class="${has?'alt':''}" onclick="newGame()">Mulai Bermain</button>
+   <button class=alt onclick="howto()">Cara Bermain</button><button class=alt onclick="settings()">Pengaturan</button></div>`;
+  has?talk('Selamat datang kembali! Yuk, kita lanjutkan menolong kebun.',null,'Oke'):kclear();
+}
+function newGame(){S={players:[],done:[],progress:0};save();setGarden();
+  talk('Hai! Aku Kelly! Kebun Ceria sedang layu. Yuk, kita bantu!',setup)}
+function cont(){kclear();setGarden();S.done.length>=4?final():nextMission(false)}
+
+let SN=2,SNames=['','','',''];
+function setup(){
+  say('Berapa teman yang mau membantu? Pilih dua sampai empat ya!');
+  const draw=()=>{
+    $('content').innerHTML=`<h2>Siapa yang bermain?</h2><div class=row>${[2,3,4].map(n=>`<button class="${n===SN?'sel2':'alt'}" onclick="SN=${n};keep();setup()">${n} pemain</button>`).join('')}</div>
+    <div class=row style="flex-direction:column;align-items:center">${Array.from({length:SN},(_,i)=>`<input type=text id=nm${i} maxlength=14 placeholder="Pemain ${i+1} (nama boleh kosong)" value="${esc(SNames[i])}">`).join('')}</div>
+    <div class=row><button onclick="goSetup()">Lanjut</button></div>`;
+  };draw();
+}
+function keep(){for(let i=0;i<4;i++){const e=$('nm'+i);if(e)SNames[i]=e.value}}
+function goSetup(){
+  keep();const typed=[];
+  S.players=Array.from({length:SN},(_,i)=>{const v=SNames[i].trim();if(v)typed.push(v);return v||'Pemain '+(i+1)});
+  S.done=[];S.progress=0;save();
+  const L=[`Wah, ada ${SN} teman yang membantu! Kebun pasti senang.`,...typed.map(n=>`Halo, ${esc(n)}! Senang bertemu denganmu.`),
+    'Setiap teman punya tugas. Kalau kita bekerja sama, kebun pasti kembali ceria!','Ada empat tugas penting di kebun ini. Ayo kita bagi tugasnya!'];
+  talk(L,roleIntro);
+}
+function roleIntro(){
+  setTurn('Perkenalan Penjaga');
+  $('content').innerHTML=`<h2>Empat Penjaga Kebun</h2>`+ROLES.map((r,i)=>`<div class=card><span>${r.ic}</span><div><b>${r.n}</b> — ${esc(owner(i))}<br>${r.task}</div></div>`).join('');
+  talk(ROLES.map((r,i)=>r.intro.replace('{n}',esc(owner(i)))),()=>nextMission(true),'Mulai');
+}
+function nextMission(first){
+  const idx=ROLES.findIndex(r=>!S.done.includes(r.id));
+  if(idx<0)return final();
+  const r=ROLES[idx],who=owner(idx);
+  setTurn(`Giliran: ${who} — ${r.n}`);
+  $('content').innerHTML=`<div class=menu><div class=star>${r.ic}</div><h2>${r.n}</h2><p>Giliran ${esc(who)}</p></div>`;
+  const begin=()=>r.run();
+  first?begin():talk(`Sekarang giliran ${esc(who)}. Berikan layarnya ya!`,begin,'Mulai');
+}
+function done(){
+  const r=ROLES.find(r=>!S.done.includes(r.id));
+  S.done.push(r.id);S.progress=S.done.length*25;save();setGarden(true);yay();
+  $('content').innerHTML=`<div class=menu><div class=star>⭐</div><h2>Misi selesai!</h2><p>Terima kasih, ${r.n}!</p><p class=sub>${r.eff}<br>Kebun pulih ${S.progress}%</p></div>`;
+  const d={25:'Lihat, ada tanaman yang mulai hidup! Satu tugas selesai.',50:'Kebun makin segar! Dua tugas sudah selesai.',75:'Sedikit lagi! Tinggal satu tugas.',100:'Semua tugas sudah selesai! Lihat, cahaya Roh Kebun menyala lagi!'}[S.progress];
+  talk(d,S.progress<100?()=>nextMission(false):final);
+}
+function final(){
+  setTurn('Kebun Ceria pulih!');S.progress=100;setGarden(true);
+  const p=S.players,thanks=p.length>1?`${esc(p[0])}, ${esc(p[1])}, dan teman-teman!`:esc(p[0]);
+  $('content').innerHTML=`<div class=menu><div class=star>🌻🐰🌻</div><h1>Kebun Ceria pulih!</h1><p class=sub>Terima kasih, ${thanks}</p><button onclick="again()">Main Lagi</button></div>`;
+  talk(['Hore! Kebun Ceria pulih! Kalian hebat karena bekerja sama!',`Terima kasih, ${thanks}`,'Roh Kebun juga bilang terima kasih, Para Penjaga!'],null,'Oke');
+}
+function again(){talk('Ada petak kebun lain yang butuh bantuan. Yuk, kita main lagi!',()=>{S={players:[],done:[],progress:0};save();setGarden();setTurn('');setup()},'Main Lagi')}
+
+/* ===== Misi 1: Penjaga Angka ===== */
+function mAngka(){
+  M={r:0,drag:-1,
+  q(){this.n=3+Math.floor(Math.random()*8);this.it=Array(12).fill(0);this.draw();say(`Masukkan ${this.n} apel ke dalam keranjang!`)},
+  ap(l){return this.it.map((v,i)=>v===l?`<span class=fr draggable=true tabindex=0 role=button aria-label=apel ondragstart="M.drag=${i}" onclick="M.t(${i})" onkeydown="if(event.key=='Enter')M.t(${i})">🍎</span>`:'').join('')},
+  t(i){this.it[i]^=1;this.draw()},
+  mv(l){if(this.drag>=0){this.it[this.drag]=l;this.drag=-1;this.draw()}},
+  draw(){const c=this.it.filter(x=>x).length;
+    $('content').innerHTML=`<h2>🔢 Penjaga Angka <small>Soal ${this.r+1}/3</small></h2><div id=fb></div>
+    <p class=cen>Klik atau seret apel ke keranjang. Klik lagi untuk mengembalikan.</p>
+    <div class=zone ondragover="event.preventDefault()" ondrop="M.mv(0)">${this.ap(0)}</div>
+    <div class="zone basket" ondragover="event.preventDefault()" ondrop="M.mv(1)"><b>🧺 Keranjang: ${c} apel</b><div>${this.ap(1)}</div></div>
+    <div class=row><button onclick="M.chk()">Cek jawaban</button></div>`},
+  chk(){if(this.it.filter(x=>x).length===this.n)ok(()=>{this.r++;this.r<3?this.q():done()});else bad()}};
+  M.q();
+}
+
+/* ===== Misi 2: Penjaga Huruf ===== */
+function mHuruf(){
+  M={r:0,L:shuf([['🍎','Apel','A'],['⚽','Bola','B'],['🥕','Wortel','W'],['🌽','Jagung','J']]),
+  show(){const [e,w,a]=this.L[this.r];const o=shuf([a,...shuf('ABJKMPSW'.split('').filter(x=>x!==a)).slice(0,3)]);
+    $('content').innerHTML=`<h2>🔤 Penjaga Huruf <small>${this.r+1}/4</small></h2><div id=fb></div><div class=big>${e}</div><p class=cen>${w}</p>
+    <div class=row>${o.map(l=>`<button class=let onclick="M.p('${l}')">${l}</button>`).join('')}</div>`;
+    say('Apa huruf awal benda ini? Pilih yang benar ya!')},
+  p(l){l===this.L[this.r][2]?ok(()=>{this.r++;this.r<4?this.show():done()}):bad()}};
+  M.show();
+}
+
+/* ===== Misi 3: Penjaga Warna & Bentuk ===== */
+function mWarna(){
+  const P=[['Merah','🔴','#e63946'],['Oranye','🟠','#f4801a'],['Hijau','🟢','#3fa34d'],['Ungu','🟣','#8e5bd0']];
+  M={sel:-1,drag:-1,
+  V:shuf([['🍅','Tomat','Merah','bulat'],['🌶️','Cabai','Merah','panjang'],['🥕','Wortel','Oranye','runcing'],['🥦','Brokoli','Hijau','seperti pohon'],['🥒','Timun','Hijau','panjang'],['🍆','Terong','Ungu','lonjong']]).map(v=>({e:v[0],n:v[1],c:v[2],s:v[3],in:0})),
+  draw(msg){
+    $('content').innerHTML=`<h2>🎨 Penjaga Warna & Bentuk</h2><div id=fb></div>
+    <p class=cen>Klik sayuran lalu klik pot, atau seret sayuran ke pot.</p>
+    <div class=row>${this.V.map((v,i)=>v.in?'':`<button class="veg ${this.sel===i?'sel':''}" draggable=true ondragstart="M.drag=${i}" onclick="M.sel=${i};M.draw()"><span>${v.e}</span>${v.n}<br><small>${v.s}</small></button>`).join('')}</div>
+    <div class=row>${P.map(p=>`<div class=pot style="border-color:${p[2]}" ondragover="event.preventDefault()" ondrop="M.put('${p[0]}')" onclick="M.put('${p[0]}')">${p[1]} ${p[0]}<div>${'🌱'.repeat(this.V.filter(v=>v.in&&v.c===p[0]).length)}</div></div>`).join('')}</div>`;
+    if(msg)fbm(msg[0],msg[1])},
+  put(c){const i=this.drag>=0?this.drag:this.sel;this.drag=-1;if(i<0)return;const v=this.V[i];this.sel=-1;
+    if(v.c===c){v.in=1;if(this.V.every(x=>x.in)){this.draw();ok(done)}else{this.draw([pick(G),1]);yay()}}
+    else{this.draw([pick(B),0]);nay()}}};
+  M.draw();say('Lihat warna dan bentuknya. Masukkan sayuran ke pot yang cocok!');
+}
+
+/* ===== Misi 4: Penjaga Kata ===== */
+function mKata(){
+  M={r:0,W:shuf([['APEL','🍎'],['BOLA','⚽'],['IKAN','🐟'],['BUKU','📖'],['PADI','🌾']]).slice(0,3),
+  show(){const w=this.W[this.r][0];let s;do{s=shuf(w.split(''))}while(s.join('')===w);this.t=s;this.a=[];this.draw();say('Huruf-hurufnya berantakan. Susun jadi kata yang benar!')},
+  draw(){const w=this.W[this.r];
+    $('content').innerHTML=`<h2>📝 Penjaga Kata <small>${this.r+1}/3</small></h2><div id=fb></div><div class=big>${w[1]}</div>
+    <div class=row>${[0,1,2,3].map(i=>`<span class=slot onclick="M.rm(${i})">${this.a[i]!==undefined?this.t[this.a[i]]:''}</span>`).join('')}</div>
+    <div class=row>${this.t.map((l,i)=>`<button class="let ${this.a.includes(i)?'disabled':''}" onclick="M.add(${i})">${l}</button>`).join('')}</div>
+    <div class=row><button class="alt sm" onclick="M.a=[];M.draw()">Ulangi</button></div>`},
+  add(i){if(this.a.includes(i)||this.a.length>=4)return;this.a.push(i);this.draw();if(this.a.length===4)this.chk()},
+  rm(i){this.a.splice(i,1);this.draw()},
+  chk(){const s=this.a.map(i=>this.t[i]).join('');
+    if(s===this.W[this.r][0])ok(()=>{this.r++;this.r<3?this.show():done()});
+    else{bad();setTimeout(()=>{this.a=[];this.draw()},1000)}}};
+  M.show();
+}
+
+/* ===== Modal ===== */
+function modal(h){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class=box>${h}<div class=row><button onclick="this.closest('.modal').remove()">Tutup</button></div></div>`;document.body.appendChild(m)}
+function howto(){modal(`<h2>Cara Bermain</h2><ol><li>Pilih 2–4 pemain, nama boleh dikosongkan.</li><li>Setiap pemain menjadi Penjaga dengan tugas berbeda.</li><li>Kerjakan misi bergantian, satu perangkat dipakai bersama.</li><li>Jawaban keliru boleh dicoba lagi, tidak ada yang kalah.</li><li>Setiap misi selesai menambah 25% kebun. Kebun pulih setelah semua misi selesai!</li></ol>`)}
+function settings(){modal(`<h2>Pengaturan</h2><p><label><input type=checkbox ${opt.snd?'checked':''} onchange="opt.snd=this.checked;save()"> Suara aktif</label></p><p><label><input type=checkbox ${opt.skip?'checked':''} onchange="opt.skip=this.checked;save()"> Lewati dialog Kelly (untuk main ulang)</label></p>`)}
+
+menu();
+</script>
+</body>
+</html>
